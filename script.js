@@ -16,8 +16,11 @@ async function getUserData(id) {
 
   try {
     const returnedValue = await central(id);
+
     const [basicInfo, returnedValueVault] = await Promise.all([
-      dbs[returnedValue](id),
+      dbs[returnedValue](id).catch((err) => {
+        throw new Error(`${returnedValue} failed: ${err.message}`);
+      }),
       vault(id),
     ]);
 
@@ -32,11 +35,22 @@ async function getUserData(id) {
       company: basicInfo.company,
     };
   } catch (error) {
-    console.log(error.message);
+    throw new Error(`Failed to get user data: ${error.message}`);
   }
-  return Promise.reject(err);
 }
 getUserData(11)
+  .then((user) => {
+    console.log(user);
+  })
+  .catch((err) => console.log(`theres was an error: ${err}`));
+
+getUserData("hello")
+  .then((user) => {
+    console.log(user);
+  })
+  .catch((err) => console.log(`theres was an error: ${err}`));
+
+getUserData(1)
   .then((user) => {
     console.log(user);
   })
